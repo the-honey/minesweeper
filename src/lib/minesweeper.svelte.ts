@@ -13,13 +13,14 @@ type Field = {
 	isFlagged: boolean;
 };
 
-export function createMinesweeper() {
-	let _width = 10;
-	let _height = 10;
-	let _minesCount = 10;
+export function createMinesweeper(width: number, height: number, mines: number) {
+	let _width = $state(width);
+	let _height = $state(height);
+	let _minesCount = $state(mines);
 
-	let _board: Field[][] = $state([]);
+	let _board: Field[][] = $state(initBoard());
 	let _revealedCount: number;
+	let _clickCount: number;
 
 	let _startTime: Date;
 	let _endTime: Date;
@@ -28,8 +29,8 @@ export function createMinesweeper() {
 
 	resetGame(_width, _height, _minesCount);
 
-	function createBoard() {
-		_board = Array.from({ length: _height }, () =>
+	function initBoard() {
+		return Array.from({ length: _height }, () =>
 			Array.from(
 				{ length: _width },
 				() => ({ value: 0, isRevealed: false, isFlagged: false }) as Field
@@ -70,9 +71,10 @@ export function createMinesweeper() {
 		if (
 			i < 0 ||
 			j < 0 ||
-			i >= _height ||
-			j >= _width ||
+			i >= _width ||
+			j >= _height ||
 			_board[j][i].isRevealed ||
+			_board[j][i].isFlagged ||
 			(_gameState != GameState.Playing && _gameState != GameState.Idle)
 		)
 			return;
@@ -86,7 +88,7 @@ export function createMinesweeper() {
 			placeMines();
 		}
 
-		if (_board[j][i].value === 0 && !_board[j][i].isFlagged) {
+		if (_board[j][i].value === 0) {
 			revealField(i - 1, j);
 			revealField(i + 1, j);
 			revealField(i, j - 1);
@@ -97,6 +99,7 @@ export function createMinesweeper() {
 			revealField(i + 1, j - 1);
 		} else if (_board[j][i].value === 9) {
 			_gameState = GameState.Lost;
+			revealMines();
 			_endTime = new Date();
 		}
 
@@ -113,11 +116,20 @@ export function createMinesweeper() {
 		_minesCount = minesCount;
 		_gameState = GameState.Idle;
 		_revealedCount = 0;
-		createBoard();
+		_board = initBoard();
+		console.log(_board);
 	}
 
 	function toggleFlag(i: number, j: number) {
 		_board[j][i].isFlagged = !_board[j][i].isFlagged;
+	}
+
+	function revealMines() {
+		_board.forEach((row) => {
+			row.forEach((field) => {
+				if (field.value === 9) field.isRevealed = true;
+			});
+		});
 	}
 
 	return {
