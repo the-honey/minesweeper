@@ -1,5 +1,3 @@
-import type { get } from 'svelte/store';
-
 export enum GameState {
 	Idle,
 	Playing,
@@ -17,13 +15,16 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 	let _width = $state(width);
 	let _height = $state(height);
 	let _minesCount = $state(mines);
+	let _flagsCount = $state(0);
 
 	let _board: Field[][] = $state(initBoard());
 	let _revealedCount: number;
-	let _clickCount: number;
 
-	let _startTime: Date;
-	let _endTime: Date;
+	let _timeElapsed = $state(0);
+	let _timer: any;
+
+	let _clickMode: boolean = $state(false);
+	$inspect(_clickMode);
 
 	let _gameState: GameState = $state(GameState.Idle);
 
@@ -83,7 +84,9 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		_board[j][i].isRevealed = true;
 
 		if (_revealedCount === 1) {
-			_startTime = new Date();
+			_timer = setInterval(() => {
+				_timeElapsed++;
+			}, 1000);
 			_gameState = GameState.Playing;
 			placeMines();
 		}
@@ -100,28 +103,48 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		} else if (_board[j][i].value === 9) {
 			_gameState = GameState.Lost;
 			revealMines();
-			_endTime = new Date();
+			clearInterval(_timer);
 		}
 
 		// check game over
 		if (_revealedCount === _width * _height - _minesCount) {
 			_gameState = GameState.Won;
-			_endTime = new Date();
+			clearInterval(_timer);
 		}
 	}
 
 	function resetGame(width: number, height: number, minesCount: number) {
+		clearInterval(_timer);
 		_width = width;
 		_height = height;
 		_minesCount = minesCount;
 		_gameState = GameState.Idle;
 		_revealedCount = 0;
+		_timeElapsed = 0;
+		_flagsCount = 0;
 		_board = initBoard();
-		console.log(_board);
 	}
 
 	function toggleFlag(i: number, j: number) {
-		_board[j][i].isFlagged = !_board[j][i].isFlagged;
+		if (
+			i < 0 ||
+			j < 0 ||
+			i >= _width ||
+			j >= _height ||
+			_board[j][i].isRevealed ||
+			(_gameState != GameState.Playing && _gameState != GameState.Idle)
+		)
+			return;
+
+		if (_board[j][i].isFlagged) {
+			_flagsCount--;
+			_board[j][i].isFlagged = !_board[j][i].isFlagged;
+		} else {
+			if (_flagsCount < _minesCount) {
+				_board[j][i].isFlagged = !_board[j][i].isFlagged;
+				_flagsCount++;
+			}
+		}
 	}
 
 	function revealMines() {
@@ -132,20 +155,37 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		});
 	}
 
+	function onFieldClick(i: number, j: number) {
+		if (_clickMode) {
+			toggleFlag(i, j);
+		} else {
+			revealField(i, j);
+		}
+	}
+
 	return {
 		get board() {
 			return _board;
 		},
+		get clickMode() {
+			return _clickMode;
+		},
+		set clickMode(value: boolean) {
+			_clickMode = value;
+		},
 		get gameState() {
 			return _gameState;
 		},
-		get startTime() {
-			return _startTime;
+		get timeElapsed() {
+			return _timeElapsed;
 		},
-		get endTime() {
-			return _endTime;
+		get flagsCount() {
+			return _flagsCount;
 		},
-		revealField,
+		get minesCount() {
+			return _minesCount;
+		},
+		onFieldClick,
 		resetGame,
 		toggleFlag
 	};

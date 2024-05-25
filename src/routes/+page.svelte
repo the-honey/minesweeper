@@ -1,5 +1,10 @@
 <script lang="ts">
 	import { createMinesweeper } from '../lib/minesweeper.svelte';
+	import MineIcon from '~icons/mdi/mine';
+	import FlagIcon from '~icons/mdi/flag';
+	import ShovelIcon from '~icons/mdi/shovel';
+	import SettingsIcon from '~icons/mdi/settings';
+	import ResetIcon from '~icons/pajamas/retry';
 
 	let width = 10;
 	let height = 10;
@@ -10,13 +15,35 @@
 	let settingsModal: HTMLDialogElement;
 </script>
 
-<div class="content-center h-full">
-	<div class="flex">
-		<button onclick={() => settingsModal.showModal()} class="btn btn-primary">Settings</button>
+<div class="content-center h-full space-y-6 p-6">
+	<div class="w-fit mx-auto flex items-center gap-12">
+		<button onclick={() => settingsModal.showModal()} class="btn btn-ghost btn-circle">
+			<SettingsIcon class="h-8 w-8 fill-current" />
+		</button>
+		<span class="font-mono text-4xl">
+			<span
+				>{Math.floor(minesweeper.timeElapsed / 60) < 10
+					? '0' + (minesweeper.timeElapsed / 60).toFixed()
+					: (minesweeper.timeElapsed / 60).toFixed()}</span
+			>:<span
+				>{Math.floor(minesweeper.timeElapsed % 60) < 10
+					? '0' + (minesweeper.timeElapsed % 60).toFixed()
+					: (minesweeper.timeElapsed % 60).toFixed()}</span
+			>
+		</span>
 
-		<button onclick={() => minesweeper.resetGame(width, height, mines)} class="btn btn-warning"
-			>Reset</button
+		<label class="swap">
+			<input type="checkbox" bind:checked={minesweeper.clickMode} />
+			<ShovelIcon class="swap-on w-12 h-12 fill-current" />
+			<FlagIcon class="swap-off w-12 h-12 fill-current" />
+		</label>
+		<span class="text-4xl">{minesweeper.minesCount - minesweeper.flagsCount}</span>
+		<button
+			onclick={() => minesweeper.resetGame(width, height, mines)}
+			class="btn btn-ghost btn-circle"
 		>
+			<ResetIcon class="h-8 w-8" />
+		</button>
 	</div>
 	<div>
 		{#if minesweeper}
@@ -26,29 +53,29 @@
 						{#if cell.isRevealed}
 							{#if cell.value === 9}
 								<button
-									onclick={() => minesweeper.revealField(cellIndex, rowIndex)}
-									class="btn btn-info m-1 btn-square text-lg"
+									onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
+									class="btn btn-info m-1 btn-square text-xl"
 								>
-									💣
+									<MineIcon class="fill-current" />
 								</button>
 							{:else}
 								<button
-									onclick={() => minesweeper.revealField(cellIndex, rowIndex)}
-									class="btn btn-secondary m-1 btn-square text-lg"
+									onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
+									class="btn btn-secondary m-1 btn-square text-xl"
 								>
 									{cell.value !== 0 ? cell.value : ''}
 								</button>
 							{/if}
 						{:else if cell.isFlagged}
 							<button
-								onclick={() => minesweeper.revealField(cellIndex, rowIndex)}
-								class="btn btn-neutral m-1 btn-square text-lg"
+								onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
+								class="btn btn-neutral m-1 btn-square text-xl"
 							>
-								🚩
+								<FlagIcon class="fill-current" />
 							</button>
 						{:else}
 							<button
-								onclick={() => minesweeper.revealField(cellIndex, rowIndex)}
+								onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
 								class="btn btn-neutral m-1 btn-square text-lg"
 							>
 							</button>
