@@ -14,6 +14,11 @@
 	const INITIAL_HEIGHT = 16;
 	const INITIAL_MINES = 20;
 
+	const MAX_WIDTH = 100;
+	const MIN_WIDTH = 5;
+	const MAX_HEIGHT = 100;
+	const MIN_HEIGHT = 5;
+
 	let newWidth = $state(0);
 	let newHeight = $state(0);
 	let newMines = $state(0);
@@ -57,12 +62,6 @@
 					: (minesweeper.timeElapsed % 60).toFixed()}</span
 			>
 		</span>
-
-		<!-- <label class="swap">
-			<input type="checkbox" bind:checked={minesweeper.clickMode} />
-			<ShovelIcon class="swap-on w-12 h-12 fill-current" />
-			<FlagIcon class="swap-off w-12 h-12 fill-current" />
-		</label> -->
 
 		<button
 			onclick={() => {
@@ -123,28 +122,76 @@
 
 <!-- settings modal -->
 <dialog bind:this={settingsModal} class="modal">
-	<div class="space-y-3 modal-box">
-		<h3 class="font-bold text-lg">Settings</h3>
-		<label class="input input-bordered flex items-center gap-2">
-			<WidthIcon />
-			Width
-			<input bind:value={newWidth} type="number" class="grow" />
-		</label>
-		<label class="input input-bordered flex items-center gap-2">
-			<HeightIcon />
-			Height
-			<input bind:value={newHeight} type="number" class="grow" />
-		</label>
-		<label class="input input-bordered flex items-center gap-2">
-			<MineIcon />
-			Mines
-			<input bind:value={newMines} type="number" class="grow" />
-		</label>
+	<div class="modal-box">
+		<h3 class="font-bold text-lg mb-6">Settings</h3>
+
+		<div class="space-y-3">
+			<label class="form-control w-full">
+				<div
+					class="input input-bordered flex items-center gap-2"
+					class:input-error={newWidth > MAX_WIDTH || newWidth < MIN_WIDTH}
+				>
+					<WidthIcon />
+					Width
+					<input type="number" class="grow" bind:value={newWidth} />
+				</div>
+				{#if newWidth > MAX_WIDTH || newWidth < MIN_WIDTH}
+					<div class="label">
+						<span class="label-text-alt text-error"
+							>Width must be between {MIN_WIDTH} and {MAX_WIDTH}</span
+						>
+					</div>
+				{/if}
+			</label>
+
+			<label class="form-control w-full">
+				<div
+					class="input input-bordered flex items-center gap-2"
+					class:input-error={newHeight > MAX_HEIGHT || newHeight < MIN_HEIGHT}
+				>
+					<HeightIcon />
+					Height
+					<input type="number" class="grow" bind:value={newHeight} />
+				</div>
+				{#if newHeight > MAX_HEIGHT || newHeight < MIN_HEIGHT}
+					<div class="label">
+						<span class="label-text-alt text-error"
+							>Height must be between {MIN_HEIGHT} and {MAX_HEIGHT}</span
+						>
+					</div>
+				{/if}
+			</label>
+
+			<label class="form-control w-full">
+				<div
+					class="input input-bordered flex items-center gap-2"
+					class:input-error={newWidth * newHeight < newMines + 1}
+				>
+					<MineIcon />
+					Mines
+					<input type="number" class="grow" bind:value={newMines} />
+				</div>
+				{#if newWidth * newHeight < newMines + 1}
+					<div class="label">
+						<span class="label-text-alt text-error"
+							>Mines count must be less than width * height</span
+						>
+					</div>
+				{/if}
+			</label>
+		</div>
 		<div class="modal-action">
 			<form method="dialog">
 				<button
-					onclick={() => minesweeper.resetGame(newWidth, newHeight, newMines)}
-					class="btn btn-primary">Save</button
+					onclick={() => {
+						minesweeper.resetGame(newWidth, newHeight, newMines);
+					}}
+					class="btn btn-primary"
+					disabled={newWidth * newHeight < newMines + 1 ||
+						newWidth > MAX_WIDTH ||
+						newWidth < MIN_WIDTH ||
+						newHeight > MAX_HEIGHT ||
+						newHeight < MIN_HEIGHT}>Save</button
 				>
 				<button class="btn btn-error">Cancel</button>
 			</form>
