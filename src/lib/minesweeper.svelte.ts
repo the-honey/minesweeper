@@ -76,32 +76,34 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		}
 	}
 
-	function revealField(i: number, j: number) {
+	function quickReveal(i: number, j: number) {
 		if (
 			i < 0 ||
 			j < 0 ||
 			i >= _width ||
 			j >= _height ||
-			_board[j][i].isFlagged ||
 			(_gameState != GameState.Playing && _gameState != GameState.Idle)
 		)
 			return;
 
-		if (_board[j][i].isRevealed) {
-			if (_board[j][i].value === 0) return;
-
-			let flags = 0;
-			for (let k = 0; k < 3; k++) {
-				for (let l = 0; l < 3; l++) {
-					if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height) {
-						if (_board[j + l - 1][i + k - 1].isFlagged) {
-							flags++;
-						}
+		let flags = 0;
+		let isLost = false;
+		for (let k = 0; k < 3; k++) {
+			for (let l = 0; l < 3; l++) {
+				if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height) {
+					if (!_board[j + l - 1][i + k - 1].isFlagged && _board[j + l - 1][i + k - 1].value === 9) {
+						isLost = true;
+					}
+					if (_board[j + l - 1][i + k - 1].isFlagged) {
+						flags++;
 					}
 				}
 			}
+		}
 
-			if (flags === _board[j][i].value) {
+		if (flags >= _board[j][i].value) {
+			if (isLost) gameLost();
+			else {
 				for (let k = 0; k < 3; k++) {
 					for (let l = 0; l < 3; l++) {
 						if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height) {
@@ -115,9 +117,20 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 					}
 				}
 			}
-
-			return;
 		}
+	}
+
+	function revealField(i: number, j: number) {
+		if (
+			i < 0 ||
+			j < 0 ||
+			i >= _width ||
+			j >= _height ||
+			_board[j][i].isRevealed ||
+			_board[j][i].isFlagged ||
+			(_gameState != GameState.Playing && _gameState != GameState.Idle)
+		)
+			return;
 
 		_board[j][i].isRevealed = true;
 
@@ -137,8 +150,7 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 			revealField(i - 1, j + 1);
 			revealField(i + 1, j - 1);
 		} else if (_board[j][i].value === 9) {
-			_gameState = GameState.Lost;
-			revealMines();
+			gameLost();
 		} else {
 			_revealedCount++;
 		}
@@ -190,9 +202,16 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		});
 	}
 
+	function gameLost() {
+		_gameState = GameState.Lost;
+		// revealMines();
+	}
+
 	function onFieldClick(i: number, j: number) {
 		if (_clickMode && !_board[j][i].isRevealed) {
 			toggleFlag(i, j);
+		} else if (_board[j][i].isRevealed && _board[j][i].value > 0) {
+			quickReveal(i, j);
 		} else {
 			revealField(i, j);
 		}
