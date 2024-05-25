@@ -24,9 +24,17 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 	let _timer: any;
 
 	let _clickMode: boolean = $state(false);
-	$inspect(_clickMode);
 
 	let _gameState: GameState = $state(GameState.Idle);
+	$effect(() => {
+		if (_gameState === GameState.Playing) {
+			_timer = setInterval(() => {
+				_timeElapsed++;
+			}, 1000);
+		} else {
+			clearInterval(_timer);
+		}
+	});
 
 	resetGame(_width, _height, _minesCount);
 
@@ -84,9 +92,6 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		_board[j][i].isRevealed = true;
 
 		if (_revealedCount === 1) {
-			_timer = setInterval(() => {
-				_timeElapsed++;
-			}, 1000);
 			_gameState = GameState.Playing;
 			placeMines();
 		}
@@ -103,18 +108,15 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		} else if (_board[j][i].value === 9) {
 			_gameState = GameState.Lost;
 			revealMines();
-			clearInterval(_timer);
 		}
 
 		// check game over
 		if (_revealedCount === _width * _height - _minesCount) {
 			_gameState = GameState.Won;
-			clearInterval(_timer);
 		}
 	}
 
 	function resetGame(width: number, height: number, minesCount: number) {
-		clearInterval(_timer);
 		_width = width;
 		_height = height;
 		_minesCount = minesCount;
