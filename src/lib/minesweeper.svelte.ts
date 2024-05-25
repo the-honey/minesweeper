@@ -88,15 +88,15 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		)
 			return;
 
-		_revealedCount++;
 		_board[j][i].isRevealed = true;
 
-		if (_revealedCount === 1) {
+		if (_revealedCount === 0) {
 			_gameState = GameState.Playing;
 			placeMines();
 		}
 
 		if (_board[j][i].value === 0) {
+			_revealedCount++;
 			revealField(i - 1, j);
 			revealField(i + 1, j);
 			revealField(i, j - 1);
@@ -108,6 +108,8 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		} else if (_board[j][i].value === 9) {
 			_gameState = GameState.Lost;
 			revealMines();
+		} else {
+			_revealedCount++;
 		}
 
 		// check game over
@@ -177,6 +179,12 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		},
 		get gameState() {
 			return _gameState;
+		},
+		get width() {
+			return _width;
+		},
+		get height() {
+			return _height;
 		},
 		get timeElapsed() {
 			return _timeElapsed;
