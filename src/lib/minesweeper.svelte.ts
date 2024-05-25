@@ -82,11 +82,42 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 			j < 0 ||
 			i >= _width ||
 			j >= _height ||
-			_board[j][i].isRevealed ||
 			_board[j][i].isFlagged ||
 			(_gameState != GameState.Playing && _gameState != GameState.Idle)
 		)
 			return;
+
+		if (_board[j][i].isRevealed) {
+			if (_board[j][i].value === 0) return;
+
+			let flags = 0;
+			for (let k = 0; k < 3; k++) {
+				for (let l = 0; l < 3; l++) {
+					if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height) {
+						if (_board[j + l - 1][i + k - 1].isFlagged) {
+							flags++;
+						}
+					}
+				}
+			}
+
+			if (flags === _board[j][i].value) {
+				for (let k = 0; k < 3; k++) {
+					for (let l = 0; l < 3; l++) {
+						if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height) {
+							if (
+								!_board[j + l - 1][i + k - 1].isRevealed &&
+								!_board[j + l - 1][i + k - 1].isFlagged
+							) {
+								revealField(i + k - 1, j + l - 1);
+							}
+						}
+					}
+				}
+			}
+
+			return;
+		}
 
 		_board[j][i].isRevealed = true;
 
@@ -160,7 +191,7 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 	}
 
 	function onFieldClick(i: number, j: number) {
-		if (_clickMode) {
+		if (_clickMode && !_board[j][i].isRevealed) {
 			toggleFlag(i, j);
 		} else {
 			revealField(i, j);
