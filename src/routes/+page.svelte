@@ -42,7 +42,7 @@
 			onclick={() => minesweeper.resetGame(width, height, mines)}
 			class="btn btn-ghost btn-circle"
 		>
-			<ResetIcon class="h-8 w-8" />
+			<ResetIcon class="h-8 w-8 fill-current" />
 		</button>
 	</div>
 	<div>
