@@ -4,13 +4,13 @@
 	import FlagIcon from '~icons/mdi/flag';
 	import ShovelIcon from '~icons/mdi/shovel';
 	import SettingsIcon from '~icons/mdi/settings';
-	import ResetIcon from '~icons/pajamas/retry';
+	import ResetIcon from '~icons/mdi/restart';
 
 	import fireConfetti from '$lib/confetti';
 
 	const INITIAL_WIDTH = 10;
-	const INITIAL_HEIGHT = 10;
-	const INITIAL_MINES = 10;
+	const INITIAL_HEIGHT = 16;
+	const INITIAL_MINES = 20;
 
 	let newWidth = $state(0);
 	let newHeight = $state(0);
@@ -27,8 +27,8 @@
 	});
 </script>
 
-<div class="h-fit space-y-6 p-6 w-fit mx-auto">
-	<div class="mx-auto max-w-fit space-x-6 justify-between flex items-center">
+<div class="h-fit space-y-6 p-3 w-fit mx-auto">
+	<div class="mx-auto max-w-fit space-x-3 lg:space-x-6 justify-between flex items-center">
 		<button
 			onclick={() => {
 				newWidth = minesweeper.width;
@@ -56,18 +56,32 @@
 			>
 		</span>
 
-		<label class="swap">
+		<!-- <label class="swap">
 			<input type="checkbox" bind:checked={minesweeper.clickMode} />
 			<ShovelIcon class="swap-on w-12 h-12 fill-current" />
 			<FlagIcon class="swap-off w-12 h-12 fill-current" />
-		</label>
+		</label> -->
+
+		<button
+			onclick={() => {
+				minesweeper.clickMode = !minesweeper.clickMode;
+			}}
+			class="btn btn-ghost btn-circle"
+		>
+			{#if minesweeper.clickMode}
+				<ShovelIcon class="w-10 h-10 fill-current" />
+			{:else}
+				<FlagIcon class="w-10 h-10 fill-current" />
+			{/if}
+		</button>
+
 		<span class="text-4xl">{minesweeper.minesCount - minesweeper.flagsCount}</span>
 		<button
 			onclick={() =>
 				minesweeper.resetGame(minesweeper.width, minesweeper.height, minesweeper.minesCount)}
 			class="btn btn-ghost btn-circle"
 		>
-			<ResetIcon class="h-8 w-8 fill-current" />
+			<ResetIcon class="h-10 w-10 fill-current" />
 		</button>
 	</div>
 	<div class="mx-auto">
@@ -75,36 +89,29 @@
 			{#each minesweeper.board as row, rowIndex}
 				<div class="flex justify-center">
 					{#each row as cell, cellIndex}
-						{#if cell.isRevealed}
-							{#if cell.value === 9}
-								<button
-									onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
-									class="btn btn-info m-1 btn-square text-xl"
-								>
-									<MineIcon class="fill-current" />
-								</button>
-							{:else}
-								<button
-									onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
-									class="btn btn-secondary m-1 btn-square text-xl"
-								>
-									{cell.value !== 0 ? cell.value : ''}
-								</button>
+						<button
+							onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
+							class="btn lg:btn-md btn-sm m-0.5 btn-square text-lg lg:text-2xl"
+							class:btn-info={minesweeper.gameState === GameState.Lost &&
+								!cell.isRevealed &&
+								cell.value === 9}
+							class:btn-warning={minesweeper.gameState === GameState.Lost &&
+								cell.isRevealed &&
+								cell.value === 9}
+							class:btn-secondary={cell.isRevealed && cell.value !== 9}
+							class:btn-neutral={!cell.isRevealed || cell.isFlagged}
+							class:btn-success={minesweeper.gameState === GameState.Lost &&
+								cell.value === 9 &&
+								cell.isFlagged}
+						>
+							{#if minesweeper.gameState === GameState.Lost && cell.value === 9}
+								<MineIcon class="fill-current" />
+							{:else if cell.isRevealed}
+								{cell.value !== 0 ? cell.value : ''}
+							{:else if cell.isFlagged}
+								<FlagIcon class="lg:text-3xl sm:text-xl fill-current" />
 							{/if}
-						{:else if cell.isFlagged}
-							<button
-								onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
-								class="btn btn-neutral m-1 btn-square text-2xl"
-							>
-								<FlagIcon class="fill-current" />
-							</button>
-						{:else}
-							<button
-								onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
-								class="btn btn-neutral m-1 btn-square text-lg"
-							>
-							</button>
-						{/if}
+						</button>
 					{/each}
 				</div>
 			{/each}
