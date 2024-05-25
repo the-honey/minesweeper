@@ -5,6 +5,8 @@
 	import ShovelIcon from '~icons/mdi/shovel';
 	import SettingsIcon from '~icons/mdi/settings';
 	import ResetIcon from '~icons/mdi/restart';
+	import HeightIcon from '~icons/material-symbols/height';
+	import WidthIcon from '~icons/material-symbols/width';
 
 	import fireConfetti from '$lib/confetti';
 
@@ -123,29 +125,21 @@
 <dialog bind:this={settingsModal} class="modal">
 	<div class="space-y-3 modal-box">
 		<h3 class="font-bold text-lg">Settings</h3>
-		<p class="space-y-5">
-			<input
-				type="number"
-				placeholder="Width"
-				min="5"
-				class="input input-bordered w-full"
-				bind:value={newWidth}
-			/>
-			<input
-				type="number"
-				placeholder="Height"
-				min="5"
-				class="input input-bordered w-full"
-				bind:value={newHeight}
-			/>
-			<input
-				type="number"
-				placeholder="Mines"
-				min="1"
-				class="input input-bordered w-full"
-				bind:value={newMines}
-			/>
-		</p>
+		<label class="input input-bordered flex items-center gap-2">
+			<WidthIcon />
+			Width
+			<input bind:value={newWidth} type="number" class="grow" />
+		</label>
+		<label class="input input-bordered flex items-center gap-2">
+			<HeightIcon />
+			Height
+			<input bind:value={newHeight} type="number" class="grow" />
+		</label>
+		<label class="input input-bordered flex items-center gap-2">
+			<MineIcon />
+			Mines
+			<input bind:value={newMines} type="number" class="grow" />
+		</label>
 		<div class="modal-action">
 			<form method="dialog">
 				<button
