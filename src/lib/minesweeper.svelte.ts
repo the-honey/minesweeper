@@ -9,6 +9,7 @@ type Field = {
 	value: number;
 	isRevealed: boolean;
 	isFlagged: boolean;
+	isReserved: boolean;
 };
 
 export function createMinesweeper(width: number, height: number, mines: number) {
@@ -42,16 +43,16 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		return Array.from({ length: _height }, () =>
 			Array.from(
 				{ length: _width },
-				() => ({ value: 0, isRevealed: false, isFlagged: false }) as Field
+				() => ({ value: 0, isRevealed: false, isFlagged: false, isReserved: false }) as Field
 			)
 		);
 	}
 
 	function placeMines() {
 		for (let i = 0; i < _minesCount; i++) {
-			let x = Math.floor(Math.random() * _width);
-			let y = Math.floor(Math.random() * _height);
-			if (_board[y][x].value === 9 || _board[y][x].isRevealed) {
+			const x = Math.floor(Math.random() * _width);
+			const y = Math.floor(Math.random() * _height);
+			if (_board[y][x].value === 9 || _board[y][x].isRevealed || _board[y][x].isReserved) {
 				i--;
 			} else {
 				_board[y][x].value = 9;
@@ -59,21 +60,13 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		}
 
 		// calculate numbers
-		for (let i = 0; i < _width; i++) {
-			for (let j = 0; j < _height; j++) {
-				if (_board[j][i].value === 9) {
-					for (let k = 0; k < 3; k++) {
-						for (let l = 0; l < 3; l++) {
-							if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height) {
-								if (_board[j + l - 1][i + k - 1].value !== 9) {
-									_board[j + l - 1][i + k - 1].value++;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		for (let i = 0; i < _width; i++)
+			for (let j = 0; j < _height; j++)
+				if (_board[j][i].value === 9)
+					for (let k = 0; k < 3; k++)
+						for (let l = 0; l < 3; l++)
+							if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height)
+								if (_board[j + l - 1][i + k - 1].value !== 9) _board[j + l - 1][i + k - 1].value++;
 	}
 
 	function quickReveal(i: number, j: number) {
@@ -103,20 +96,15 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 
 		if (flags >= _board[j][i].value) {
 			if (isLost) gameLost();
-			else {
-				for (let k = 0; k < 3; k++) {
-					for (let l = 0; l < 3; l++) {
-						if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height) {
+			else
+				for (let k = 0; k < 3; k++)
+					for (let l = 0; l < 3; l++)
+						if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height)
 							if (
 								!_board[j + l - 1][i + k - 1].isRevealed &&
 								!_board[j + l - 1][i + k - 1].isFlagged
-							) {
+							)
 								revealField(i + k - 1, j + l - 1);
-							}
-						}
-					}
-				}
-			}
 		}
 	}
 
@@ -136,6 +124,10 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 
 		if (_revealedCount === 0) {
 			_gameState = GameState.Playing;
+			for (let k = 0; k < 3; k++)
+				for (let l = 0; l < 3; l++)
+					if (i + k - 1 >= 0 && i + k - 1 < _width && j + l - 1 >= 0 && j + l - 1 < _height)
+						_board[j + l - 1][i + k - 1].isReserved = true;
 			placeMines();
 		}
 
