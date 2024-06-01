@@ -209,6 +209,16 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		}
 	}
 
+	function onFieldPress(i: number, j: number) {
+		if (_clickMode && !_board[j][i].isRevealed) {
+			revealField(i, j);
+		} else if (_board[j][i].isRevealed && _board[j][i].value > 0) {
+			quickReveal(i, j);
+		} else {
+			toggleFlag(i, j);
+		}
+	}
+
 	return {
 		get board() {
 			return _board;
@@ -237,8 +247,8 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 		get minesCount() {
 			return _minesCount;
 		},
+		onFieldPress,
 		onFieldClick,
-		resetGame,
-		toggleFlag
+		resetGame
 	};
 }
