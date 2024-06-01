@@ -54,12 +54,12 @@
 		>
 			<span
 				>{Math.floor(minesweeper.timeElapsed / 60) < 10
-					? '0' + (minesweeper.timeElapsed / 60).toFixed()
-					: (minesweeper.timeElapsed / 60).toFixed()}</span
+					? '0' + Math.floor(minesweeper.timeElapsed / 60).toString()
+					: Math.floor(minesweeper.timeElapsed / 60).toString()}</span
 			>:<span
 				>{Math.floor(minesweeper.timeElapsed % 60) < 10
-					? '0' + (minesweeper.timeElapsed % 60).toFixed()
-					: (minesweeper.timeElapsed % 60).toFixed()}</span
+					? '0' + Math.floor(minesweeper.timeElapsed % 60).toString()
+					: Math.floor(minesweeper.timeElapsed % 60).toString()}</span
 			>
 		</span>
 
