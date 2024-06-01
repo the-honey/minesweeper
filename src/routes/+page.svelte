@@ -7,6 +7,7 @@
 	import ResetIcon from '~icons/mdi/restart';
 	import HeightIcon from '~icons/material-symbols/height';
 	import WidthIcon from '~icons/material-symbols/width';
+	import { press } from 'svelte-gestures';
 
 	import fireConfetti from '$lib/confetti';
 
@@ -37,7 +38,7 @@
 <div class="h-fit space-y-6 p-3 w-fit mx-auto">
 	<div class="mx-auto max-w-fit space-x-3 lg:space-x-6 justify-between flex items-center">
 		<button
-			onclick={() => {
+			on:click={() => {
 				newWidth = minesweeper.width;
 				newHeight = minesweeper.height;
 				newMines = minesweeper.minesCount;
@@ -64,7 +65,7 @@
 		</span>
 
 		<button
-			onclick={() => {
+			on:click={() => {
 				minesweeper.clickMode = !minesweeper.clickMode;
 			}}
 			class="btn btn-ghost btn-circle"
@@ -78,7 +79,7 @@
 
 		<span class="text-4xl">{minesweeper.minesCount - minesweeper.flagsCount}</span>
 		<button
-			onclick={() =>
+			on:click={() =>
 				minesweeper.resetGame(minesweeper.width, minesweeper.height, minesweeper.minesCount)}
 			class="btn btn-ghost btn-circle"
 		>
@@ -91,7 +92,9 @@
 				<div class="flex justify-center">
 					{#each row as cell, cellIndex}
 						<button
-							onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
+							use:press={{ timeframe: 300, triggerBeforeFinished: true }}
+							on:press={() => minesweeper.toggleFlag(cellIndex, rowIndex)}
+							on:click={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
 							class="btn lg:btn-md btn-sm m-0.5 btn-square text-lg lg:text-2xl"
 							class:btn-info={minesweeper.gameState === GameState.Lost &&
 								!cell.isRevealed &&
@@ -135,13 +138,14 @@
 					Width
 					<input type="number" class="grow" bind:value={newWidth} />
 				</div>
-				{#if newWidth > MAX_WIDTH || newWidth < MIN_WIDTH}
-					<div class="label">
-						<span class="label-text-alt text-error"
-							>Width must be between {MIN_WIDTH} and {MAX_WIDTH}</span
-						>
-					</div>
-				{/if}
+				<!-- <div class="label">
+					<span
+						class="label-text-alt text-error"
+						class:invisible={!(newWidth > MAX_WIDTH || newWidth < MIN_WIDTH)}
+					>
+						Width must be between {MIN_WIDTH} and {MAX_WIDTH}
+					</span>
+				</div> -->
 			</label>
 
 			<label class="form-control w-full">
@@ -153,13 +157,14 @@
 					Height
 					<input type="number" class="grow" bind:value={newHeight} />
 				</div>
-				{#if newHeight > MAX_HEIGHT || newHeight < MIN_HEIGHT}
-					<div class="label">
-						<span class="label-text-alt text-error"
-							>Height must be between {MIN_HEIGHT} and {MAX_HEIGHT}</span
-						>
-					</div>
-				{/if}
+				<!-- <div class="label">
+					<span
+						class="label-text-alt text-error"
+						class:invisible={!(newHeight > MAX_HEIGHT || newHeight < MIN_HEIGHT)}
+					>
+						Height must be between {MIN_HEIGHT} and {MAX_HEIGHT}
+					</span>
+				</div> -->
 			</label>
 
 			<label class="form-control w-full">
@@ -171,19 +176,20 @@
 					Mines
 					<input type="number" class="grow" bind:value={newMines} />
 				</div>
-				{#if newWidth * newHeight < newMines + 1}
-					<div class="label">
-						<span class="label-text-alt text-error"
-							>Mines count must be less than width * height</span
-						>
-					</div>
-				{/if}
+				<!-- <div class="label">
+					<span
+						class="label-text-alt text-error"
+						class:invisible={!(newWidth * newHeight < newMines + 1)}
+					>
+						Mines count must be less than width * height
+					</span>
+				</div> -->
 			</label>
 		</div>
 		<div class="modal-action">
 			<form method="dialog">
 				<button
-					onclick={() => {
+					on:click={() => {
 						minesweeper.resetGame(newWidth, newHeight, newMines);
 					}}
 					class="btn btn-primary"
