@@ -36,56 +36,59 @@
 </script>
 
 <div class="h-fit space-y-6 p-3 w-fit mx-auto">
-	<div class="mx-auto max-w-fit space-x-3 lg:space-x-6 justify-between flex items-center">
-		<button
-			on:click={() => {
-				newWidth = minesweeper.width;
-				newHeight = minesweeper.height;
-				newMines = minesweeper.minesCount;
-				settingsModal.showModal();
-			}}
-			class="btn btn-ghost btn-circle"
-		>
-			<SettingsIcon class="h-8 w-8 fill-current" />
-		</button>
-		<span
-			class="font-mono text-4xl"
-			class:text-success={minesweeper.gameState === GameState.Won}
-			class:text-error={minesweeper.gameState === GameState.Lost}
-		>
-			<span
-				>{Math.floor(minesweeper.timeElapsed / 60) < 10
-					? '0' + Math.floor(minesweeper.timeElapsed / 60).toString()
-					: Math.floor(minesweeper.timeElapsed / 60).toString()}</span
-			>:<span
-				>{Math.floor(minesweeper.timeElapsed % 60) < 10
-					? '0' + Math.floor(minesweeper.timeElapsed % 60).toString()
-					: Math.floor(minesweeper.timeElapsed % 60).toString()}</span
+	<div class="sticky bg-base-100 top-0 py-3">
+		<div class="mx-auto max-w-fit space-x-3 lg:space-x-6 justify-between flex items-center">
+			<button
+				on:click={() => {
+					newWidth = minesweeper.width;
+					newHeight = minesweeper.height;
+					newMines = minesweeper.minesCount;
+					settingsModal.showModal();
+				}}
+				class="btn btn-ghost btn-circle"
 			>
-		</span>
+				<SettingsIcon class="h-8 w-8 fill-current" />
+			</button>
+			<span
+				class="font-mono text-4xl"
+				class:text-success={minesweeper.gameState === GameState.Won}
+				class:text-error={minesweeper.gameState === GameState.Lost}
+			>
+				<span
+					>{Math.floor(minesweeper.timeElapsed / 60) < 10
+						? '0' + Math.floor(minesweeper.timeElapsed / 60).toString()
+						: Math.floor(minesweeper.timeElapsed / 60).toString()}</span
+				>:<span
+					>{Math.floor(minesweeper.timeElapsed % 60) < 10
+						? '0' + Math.floor(minesweeper.timeElapsed % 60).toString()
+						: Math.floor(minesweeper.timeElapsed % 60).toString()}</span
+				>
+			</span>
 
-		<button
-			on:click={() => {
-				minesweeper.clickMode = !minesweeper.clickMode;
-			}}
-			class="btn btn-ghost btn-circle"
-		>
-			{#if minesweeper.clickMode}
-				<ShovelIcon class="w-10 h-10 fill-current" />
-			{:else}
-				<FlagIcon class="w-10 h-10 fill-current" />
-			{/if}
-		</button>
+			<button
+				on:click={() => {
+					minesweeper.clickMode = !minesweeper.clickMode;
+				}}
+				class="btn btn-ghost btn-circle"
+			>
+				{#if minesweeper.clickMode}
+					<ShovelIcon class="w-10 h-10 fill-current" />
+				{:else}
+					<FlagIcon class="w-10 h-10 fill-current" />
+				{/if}
+			</button>
 
-		<span class="text-4xl">{minesweeper.minesCount - minesweeper.flagsCount}</span>
-		<button
-			on:click={() =>
-				minesweeper.resetGame(minesweeper.width, minesweeper.height, minesweeper.minesCount)}
-			class="btn btn-ghost btn-circle"
-		>
-			<ResetIcon class="h-10 w-10 fill-current" />
-		</button>
+			<span class="text-4xl">{minesweeper.minesCount - minesweeper.flagsCount}</span>
+			<button
+				on:click={() =>
+					minesweeper.resetGame(minesweeper.width, minesweeper.height, minesweeper.minesCount)}
+				class="btn btn-ghost btn-circle"
+			>
+				<ResetIcon class="h-10 w-10 fill-current" />
+			</button>
+		</div>
 	</div>
+
 	<div class="mx-auto">
 		{#if minesweeper}
 			{#each minesweeper.board as row, rowIndex}
