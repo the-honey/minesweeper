@@ -2,7 +2,10 @@
 	"name": "minesweeper",
 	"version": "0.0.1",
 	"private": true,
-	"packageManager": "pnpm@latest",
+	"packageManager": "pnpm@^9.5.0",
+	"engines": {
+		"node": ">=20"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
