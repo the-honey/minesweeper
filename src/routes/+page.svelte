@@ -92,7 +92,7 @@
 				<div class="flex justify-center">
 					{#each row as cell, cellIndex}
 						<button
-							use:press={{ timeframe: 300, triggerBeforeFinished: true }}
+							use:press={{ timeframe: 200, triggerBeforeFinished: true }}
 							on:press={() => minesweeper.onFieldPress(cellIndex, rowIndex)}
 							on:click={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
 							class="btn lg:btn-md btn-sm m-0.5 btn-square text-lg lg:text-2xl"
