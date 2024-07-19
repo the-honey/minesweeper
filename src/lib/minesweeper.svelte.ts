@@ -1,3 +1,17 @@
+import { browser } from '$app/environment';
+
+type SavedGame = {
+	width: number;
+	height: number;
+	minesCount: number;
+	board: Field[][];
+	timeElapsed: number;
+	flagsCount: number;
+	revealedCount: number;
+	gameState: GameState;
+	clickMode: boolean;
+};
+
 export enum GameState {
 	Idle,
 	Playing,
@@ -19,25 +33,62 @@ export function createMinesweeper(width: number, height: number, mines: number) 
 	let _flagsCount = $state(0);
 
 	let _board: Field[][] = $state(initBoard());
-	let _revealedCount: number;
+	let _revealedCount = $state(0);
 
 	let _timeElapsed = $state(0);
-	let _timer: any;
+	let _timer: ReturnType<typeof setInterval> | null;
 
 	let _clickMode: boolean = $state(false);
 
 	let _gameState: GameState = $state(GameState.Idle);
 	$effect(() => {
-		if (_gameState === GameState.Playing) {
+		saveGame();
+		if (_gameState === GameState.Playing && !_timer) {
 			_timer = setInterval(() => {
 				_timeElapsed++;
 			}, 1000);
-		} else {
+		} else if (_gameState !== GameState.Playing && _timer) {
 			clearInterval(_timer);
+			_timer = null;
 		}
 	});
 
-	resetGame(_width, _height, _minesCount);
+	if (browser) {
+		loadGame();
+	} else {
+		resetGame(_width, _height, _minesCount);
+	}
+
+	function loadGame() {
+		const savedGame = localStorage.getItem('minesweeper');
+		if (savedGame) {
+			const game: SavedGame = JSON.parse(savedGame);
+			_width = game.width;
+			_height = game.height;
+			_minesCount = game.minesCount;
+			_timeElapsed = game.timeElapsed;
+			_flagsCount = game.flagsCount;
+			_revealedCount = game.revealedCount;
+			_gameState = game.gameState;
+			_board = game.board;
+			_clickMode = game.clickMode;
+		}
+	}
+
+	function saveGame() {
+		const game: SavedGame = {
+			width: _width,
+			height: _height,
+			minesCount: _minesCount,
+			board: _board,
+			timeElapsed: _timeElapsed,
+			flagsCount: _flagsCount,
+			revealedCount: _revealedCount,
+			gameState: _gameState,
+			clickMode: _clickMode
+		};
+		localStorage.setItem('minesweeper', JSON.stringify(game));
+	}
 
 	function initBoard() {
 		return Array.from({ length: _height }, () =>
