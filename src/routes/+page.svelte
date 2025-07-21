@@ -38,7 +38,7 @@
 <div class="h-fit space-y-6 p-3 w-fit mx-auto">
 	<div class="mx-auto max-w-fit space-x-3 lg:space-x-6 justify-between flex items-center">
 		<button
-			on:click={() => {
+			onclick={() => {
 				newWidth = minesweeper.width;
 				newHeight = minesweeper.height;
 				newMines = minesweeper.minesCount;
@@ -65,7 +65,7 @@
 		</span>
 
 		<button
-			on:click={() => {
+			onclick={() => {
 				minesweeper.clickMode = !minesweeper.clickMode;
 			}}
 			class="btn btn-ghost btn-circle"
@@ -79,7 +79,7 @@
 
 		<span class="text-4xl">{minesweeper.minesCount - minesweeper.flagsCount}</span>
 		<button
-			on:click={() =>
+			onclick={() =>
 				minesweeper.resetGame(minesweeper.width, minesweeper.height, minesweeper.minesCount)}
 			class="btn btn-ghost btn-circle"
 		>
@@ -92,9 +92,9 @@
 				<div class="flex justify-center">
 					{#each row as cell, cellIndex}
 						<button
-							use:press={{ timeframe: 200, triggerBeforeFinished: true }}
-							on:press={() => minesweeper.onFieldPress(cellIndex, rowIndex)}
-							on:click={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
+							use:press={() => ({ timeframe: 200, triggerBeforeFinished: true })}
+							onpress={() => minesweeper.onFieldPress(cellIndex, rowIndex)}
+							onclick={() => minesweeper.onFieldClick(cellIndex, rowIndex)}
 							class="btn lg:btn-md btn-sm m-0.5 btn-square text-lg lg:text-2xl"
 							class:btn-info={minesweeper.gameState === GameState.Lost &&
 								!cell.isRevealed &&
@@ -189,7 +189,7 @@
 		<div class="modal-action">
 			<form method="dialog">
 				<button
-					on:click={() => {
+					onclick={() => {
 						minesweeper.resetGame(newWidth, newHeight, newMines);
 					}}
 					class="btn btn-primary"
